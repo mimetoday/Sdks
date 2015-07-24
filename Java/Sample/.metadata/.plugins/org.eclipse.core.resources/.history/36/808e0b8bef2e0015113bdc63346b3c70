@@ -1,0 +1,6 @@
+package data.contracts;
+
+public class OperationOut {
+	public String OperationStatus;
+	public OperationMessage OperationMessage;
+}

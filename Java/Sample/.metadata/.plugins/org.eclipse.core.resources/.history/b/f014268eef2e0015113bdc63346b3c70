@@ -1,0 +1,9 @@
+package data.contracts;
+
+public class ProcessAuthenticationIn {
+	public String DecryptedToken;
+	
+	public ProcessAuthenticationIn(String decryptedToken) {
+		DecryptedToken = decryptedToken;
+	}
+}

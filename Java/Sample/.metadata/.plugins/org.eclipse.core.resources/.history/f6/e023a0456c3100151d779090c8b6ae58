@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+<script src="Content/js/jquery-2.1.1.min.js"></script>
+<script>
+	$(document).ready(function () {
+		$.ajax({
+            type: "POST",
+            url: "/ToBetrusted.Java.Sample/UserServlet",
+            data: data,
+            dataType: "json",
+            success: function (result) {
+                success = result.Success;
+                userName = result.UserName;
+            },
+            async: false,
+        });
+	});
+    </script>
+</head>
+<body>
+<iframe id="frame" src="http://localhost:81/Auth/Authentication.html?appname=sample" style="height: 600px;width:50%;border: none;margin-left: 300px;"></iframe>
+</body>
+</html>

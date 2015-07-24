@@ -1,0 +1,102 @@
+package Utils;
+
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+ 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+ 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
+ 
+import javax.net.SocketFactory;
+ 
+import org.apache.commons.httpclient.ConnectTimeoutException;
+import org.apache.commons.httpclient.HttpClientError;
+import org.apache.commons.httpclient.params.HttpConnectionParams;
+
+ 
+public class TrustAllSSLProtocolSocketFactory implements ProtocolSocketFactory {
+ 
+    public static void initialize() {
+        Protocol.registerProtocol("https", new Protocol("https", new TrustAllSSLProtocolSocketFactory(), 443));
+    }
+ 
+    private SSLContext sslcontext = null;
+ 
+    private static TrustManager trustAllCerts =
+            new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() { return null; }
+                public void checkClientTrusted( java.security.cert.X509Certificate[] certs, String authType) {}
+                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+            };
+ 
+    /**
+     * Constructor for TrustAllSSLProtocolSocketFactory.
+     */
+    private TrustAllSSLProtocolSocketFactory() {
+        super();
+    }
+ 
+    private static SSLContext createSSLContext() {
+        try {
+            SSLContext context = SSLContext.getInstance("SSL");
+            context.init(null, new TrustManager[]{trustAllCerts}, null);
+            return context;
+        } catch (Exception e) {
+            throw new HttpClientError(e.toString());
+        }
+    }
+ 
+    private SSLContext getSSLContext() {
+        if (this.sslcontext == null) {
+            this.sslcontext = createSSLContext();
+        }
+        return this.sslcontext;
+    }
+ 
+    public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort)
+            throws IOException, UnknownHostException {
+        return getSSLContext().getSocketFactory().createSocket(host, port, clientHost, clientPort);
+    }
+ 
+ 
+    public Socket createSocket(final String host, final int port, final InetAddress localAddress,
+                               final int localPort, final HttpConnectionParams params
+    ) throws IOException, UnknownHostException, ConnectTimeoutException {
+        if (params == null) throw new IllegalArgumentException("Parameters may not be null");
+        int timeout = params.getConnectionTimeout();
+        SocketFactory socketfactory = getSSLContext().getSocketFactory();
+        if (timeout == 0) return socketfactory.createSocket(host, port, localAddress, localPort);
+        else {
+            Socket socket = socketfactory.createSocket();
+            SocketAddress localaddr = new InetSocketAddress(localAddress, localPort);
+            SocketAddress remoteaddr = new InetSocketAddress(host, port);
+            socket.bind(localaddr);
+            socket.connect(remoteaddr, timeout);
+            return socket;
+        }
+    }
+ 
+    public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+        return getSSLContext().getSocketFactory().createSocket(host, port);
+    }
+ 
+    public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
+            throws IOException, UnknownHostException {
+        return getSSLContext().getSocketFactory().createSocket(socket, host, port, autoClose);
+    }
+ 
+    public boolean equals(Object obj) {
+        return ((obj != null) && obj.getClass().equals(TrustAllSSLProtocolSocketFactory.class));
+    }
+ 
+    public int hashCode() {
+        return TrustAllSSLProtocolSocketFactory.class.hashCode();
+    }
+}

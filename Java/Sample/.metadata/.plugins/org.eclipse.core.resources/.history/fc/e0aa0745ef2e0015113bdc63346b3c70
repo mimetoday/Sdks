@@ -1,0 +1,45 @@
+package Utils;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+
+import com.google.gson.Gson;
+
+import data.contracts.OperationMessage;
+import data.contracts.ProcessAuthenticationIn;
+import data.contracts.ProcessAuthenticationOut;
+
+public class HttpPost {
+	public static ProcessAuthenticationOut send(String url, ProcessAuthenticationIn request){
+		ProcessAuthenticationOut result = new ProcessAuthenticationOut();
+		try {
+			Gson g = new Gson();
+            HttpClient client = new HttpClient();
+            PostMethod post = new PostMethod(url);
+        	post.addRequestHeader("content-type", "application/json");
+        	post.addRequestHeader("data-type", "json");
+        	
+        	String requestString = g.toJson(request);
+        	
+        	StringRequestEntity requestEntity = new StringRequestEntity(
+        			requestString,
+        		    "application/json",
+        		    "UTF-8");
+        	post.setRequestEntity(requestEntity);
+                        
+            int statusCode = client.executeMethod(post);
+            if (statusCode != -1) {
+            	String response = post.getResponseBodyAsString(); 
+            	result = g.fromJson(response, ProcessAuthenticationOut.class);
+            	return result;
+            }
+            result.OperationMessage = new OperationMessage("", "Internal error");
+        } 
+        catch (Exception e) {
+        	result = new ProcessAuthenticationOut();
+            result.OperationMessage = new OperationMessage(e.toString(), "Internal error");
+        }
+		return null;
+	}
+}

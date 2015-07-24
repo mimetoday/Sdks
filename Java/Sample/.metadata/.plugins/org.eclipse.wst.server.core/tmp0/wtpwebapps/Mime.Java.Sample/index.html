@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+<script src="Content/js/jquery-2.1.1.min.js"></script>
+<script>
+	$(document).ready(function () {
+	    window.onmessage = function (e) {
+	        var sucess = false;
+	        var userName = null;
+	        var data = { Status: e.data.status, Token: e.data.token };
+	
+	        $.ajax({
+	            type: "POST",
+	            url: "/Mime.Java.Sample/LoginServlet",
+	            data: data,
+	            dataType: "json",
+	            success: function (result) {
+	                sucess = result.Sucess;
+	                userName = result.UserName;
+	            },
+	            async: false,
+	        });
+	        if (sucess) {
+	            
+	            window.location.href = "prviate.html";
+	        }
+	        else {
+	            $('#iframe').attr('src', $('#iframe').attr('src'));
+	        }
+	
+	
+	    }
+	});
+    </script>
+</head>
+<body>
+<iframe id="iframe" src="https://localhost/iframe/loginframe.html?entrypoint=sample&usesession=true&register=true&manage=true" 
+		style="height: 600px;width:50%;border: none;margin-left: 300px;"></iframe>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+<script src="Content/js/jquery-2.1.1.min.js"></script>
+<script>
+	$(document).ready(function () {
+		$.ajax({
+            type: "POST",
+            url: "/ToBetrusted.Java.Sample/UserServlet",
+            data: data,
+            dataType: "json",
+            success: function (result) {
+                success = result.Success;
+                userName = result.UserName;
+            },
+            async: false,
+        });
+	});
+    </script>
+</head>
+<body>
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+<classpath>
+  <container id="Mime.Java.Sample!org.eclipse.jst.j2ee.internal.web.container">
+    <entry id="C:/Work/2btrusted/trunk/Samples/Java/Mime.Java.Sample/WebContent/WEB-INF/lib/Mime.Java.Sdk.jar">
+      <source-attachment-path>/Mime.Java.Sdk</source-attachment-path>
+    </entry>
+  </container>
+</classpath>

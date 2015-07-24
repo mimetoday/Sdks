@@ -1,0 +1,13 @@
+package DataContracts;
+public class ProcessAuthenticationOut extends OperationOut{
+	public String Domain;    
+    public String Application;
+    public String Package;
+    public String User;
+    public String Ip;
+    public String Country;
+    public String City;
+    public String LoginTime;
+    public String Status;
+    public String ErrorMessage;
+}

@@ -1,0 +1,10 @@
+﻿.main-content {
+    width: 70%;
+    margin: 0 auto;
+    font-size: 14px;
+    min-height:300px;
+}
+
+.content {
+    padding: 70px;
+}

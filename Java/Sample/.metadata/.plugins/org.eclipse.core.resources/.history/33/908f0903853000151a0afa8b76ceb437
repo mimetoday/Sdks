@@ -1,0 +1,111 @@
+package Utils;
+
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+
+import com.google.gson.Gson;
+
+import DataContracts.OperationMessage;
+import DataContracts.ProcessAuthenticationIn;
+import DataContracts.ProcessAuthenticationOut;
+
+public class HttpPost {
+	
+	public static ProcessAuthenticationOut send(String url, ProcessAuthenticationIn req){
+		ProcessAuthenticationOut result = new ProcessAuthenticationOut();
+		
+		try {
+			Gson g = new Gson();
+			TrustAllSSLProtocolSocketFactory.initialize();
+            HttpClient client = new HttpClient();
+            PostMethod post = new PostMethod(url);
+        	post.addRequestHeader("content-type", "application/json");
+        	post.addRequestHeader("data-type", "json");
+        	
+        	String requestString = g.toJson(req);
+        	
+        	StringRequestEntity requestEntity = new StringRequestEntity(
+        			requestString,
+        		    "application/json",
+        		    "UTF-8");
+        	post.setRequestEntity(requestEntity);
+        	
+            int statusCode = client.executeMethod(post);
+            if (statusCode != -1) {
+            	String response = post.getResponseBodyAsString(); 
+            	result = g.fromJson(response, ProcessAuthenticationOut.class);
+            	return result;
+            }
+            result.OperationMessage = new OperationMessage("", "Internal error");
+        } 
+        catch (Exception e) {
+        	result = new ProcessAuthenticationOut();
+            result.OperationMessage = new OperationMessage(e.toString(), "Internal error");
+        }
+		return null;
+	}
+	
+	
+	public static String sendPost(final String request, final String postData) throws ClientProtocolException, IOException, NoSuchAlgorithmException, KeyManagementException  {
+		try {
+		    // Create a trust manager that does not validate certificate chains
+		    final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+		        @Override
+		        public void checkClientTrusted( final X509Certificate[] chain, final String authType ) {
+		        }
+		        @Override
+		        public void checkServerTrusted( final X509Certificate[] chain, final String authType ) {
+		        }
+		        @Override
+		        public X509Certificate[] getAcceptedIssuers() {
+		            return null;
+		        }
+		    } };
+		    
+		    // Install the all-trusting trust manager
+		    final SSLContext sslContext = SSLContext.getInstance( "SSL" );
+		    sslContext.init( null, trustAllCerts, new java.security.SecureRandom() );
+		    // Create an ssl socket factory with our all-trusting manager
+		    final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+		    
+		    
+		    // All set up, we can get a resource through https now:
+		    final URLConnection urlCon = new URL( "https://someserver.yo/resource" ).openConnection();
+		    // Tell the url connection object to use our socket factory which bypasses security checks
+		    ((HttpsURLConnection)urlCon).setSSLSocketFactory( sslSocketFactory );
+		    
+		    final InputStream input = urlCon.getInputStream();
+		    int c;
+		    while ( ( c = input.read() ) != -1 ) {
+		        // Do something...
+		    }
+		    input.close();
+		} catch ( final Exception e ) {
+		    e.printStackTrace();
+		}
+
+	}
+} 

@@ -1,0 +1,109 @@
+package Utils;
+
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+
+import com.google.gson.Gson;
+
+import DataContracts.OperationMessage;
+import DataContracts.ProcessAuthenticationIn;
+import DataContracts.ProcessAuthenticationOut;
+
+public class HttpPost {
+	
+	public static ProcessAuthenticationOut send(String url, ProcessAuthenticationIn req){
+		ProcessAuthenticationOut result = new ProcessAuthenticationOut();
+		
+		try {
+			Gson g = new Gson();
+			TrustAllSSLProtocolSocketFactory.initialize();
+            HttpClient client = new HttpClient();
+            PostMethod post = new PostMethod(url);
+        	post.addRequestHeader("content-type", "application/json");
+        	post.addRequestHeader("data-type", "json");
+        	
+        	String requestString = g.toJson(req);
+        	
+        	StringRequestEntity requestEntity = new StringRequestEntity(
+        			requestString,
+        		    "application/json",
+        		    "UTF-8");
+        	post.setRequestEntity(requestEntity);
+        	
+            int statusCode = client.executeMethod(post);
+            if (statusCode != -1) {
+            	String response = post.getResponseBodyAsString(); 
+            	result = g.fromJson(response, ProcessAuthenticationOut.class);
+            	return result;
+            }
+            result.OperationMessage = new OperationMessage("", "Internal error");
+        } 
+        catch (Exception e) {
+        	result = new ProcessAuthenticationOut();
+            result.OperationMessage = new OperationMessage(e.toString(), "Internal error");
+        }
+		return null;
+	}
+	
+	
+	public static String sendPost(final String request, final String postData) throws ClientProtocolException, IOException, NoSuchAlgorithmException, KeyManagementException  {
+	    String result = null;
+	    SSLContext sslContext = SSLContext.getInstance("SSL");
+
+	    // set up a TrustManager that trusts everything
+	    sslContext.init(null, new TrustManager[] { new X509TrustManager() {
+	             	@Override
+					public void checkClientTrusted(X509Certificate[] chain, String authType)
+							throws CertificateException {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void checkServerTrusted(X509Certificate[] chain, String authType)
+							throws CertificateException {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public X509Certificate[] getAcceptedIssuers() {
+						// TODO Auto-generated method stub
+						return null;
+					}
+	    } }, new SecureRandom());
+
+	    CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory((LayeredConnectionSocketFactory) new SSLSocketFactory(sslContext)).build();
+	    HttpPost httpPost = new HttpPost(request);
+	    
+	    httpPost.setEntity(req);
+	    CloseableHttpResponse response = httpclient.execute(httpPost);
+	    try {
+	        HttpEntity entity = response.getEntity();
+	        result = EntityUtils.toString(entity);
+	        EntityUtils.consume(entity);
+	    } finally {
+	        response.close();
+	    }
+	    return result;
+
+	}
+} 

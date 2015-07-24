@@ -1,0 +1,51 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Layout.master.cs" Inherits="Asp.Layout" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Mime Sample</title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+        <!-- Bootstrap -->
+        <link href="Content/Bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="Content/Css/custom.css" rel="stylesheet" />
+        
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="Content/Scripts/jquery-2.1.1.min.js"></script>
+
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="Content/Bootstrap/js/bootstrap.min.js"></script>
+    <form id="form" runat="server">
+        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="Index.aspx" style="width: 200px;margin-top: -10px;">
+                    <img id="logo-image" class="logo-image" src="Content/Images/main-logo.png" alt="Logo" style="width: 100%;"/>
+                </a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right" id="login">
+                    <li><a href="Private.aspx">Private</a></li>
+                    <li id="LogoutDiv" runat="server"><asp:LinkButton ID="Logout" runat="server" OnClick="Logout_Click">Logout</asp:LinkButton></li>
+                </ul>
+                <div id="logoutFrame" runat="server" style="display:none;">
+                    <iframe id="ContentIframe" runat="server"></iframe>
+                </div>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+        <div class="content">
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder" runat="server" ></asp:ContentPlaceHolder>
+        </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,48 @@
+package Utils;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
+import javax.security.cert.CertificateException;
+import javax.security.cert.X509Certificate;
+
+import org.apache.commons.httpclient.HttpClient;
+
+public class WebClientWrapper {
+	public static HttpClient wrapClient(HttpClient base) {
+		try {
+			SSLContext ctx = SSLContext.getInstance("TLS");
+			X509TrustManager tm = new X509TrustManager() {
+			 
+				@Override
+				public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
+						throws java.security.cert.CertificateException {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
+						throws java.security.cert.CertificateException {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+			};
+			ctx.init(null, new TrustManager[]{tm}, null);
+			SSLSocketFactory ssf = new SSLSocketFactory(ctx);
+			ssf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+			ClientConnectionManager ccm = base.getConnectionManager();
+			SchemeRegistry sr = ccm.getSchemeRegistry();
+			sr.register(new Scheme("https", ssf, 443));
+			return new DefaultHttpClient(ccm, base.getParams());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+	}
+}
